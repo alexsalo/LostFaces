@@ -17,6 +17,18 @@ class ViewPhotoViewController: UIViewController, MFMailComposeViewControllerDele
     var index: Int = 0
     var myMail: MFMailComposeViewController!
 
+    @IBAction func btnMetadata(sender: AnyObject) {
+        println("Cancel");
+        var img = self.photosAsset[self.index] as PHAsset
+        //println(img.description)
+        //println(img.location)
+        let alert = UIAlertController(title: "Metadata", message:
+            img.description, preferredStyle: UIAlertControllerStyle.Alert)
+        alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default,handler: nil))
+        
+        self.presentViewController(alert, animated: true, completion: nil)
+    }
+    
     @IBAction func btnCancel(sender: AnyObject) {
         println("Cancel");
         self.navigationController?.popToRootViewControllerAnimated(true)        
@@ -24,7 +36,9 @@ class ViewPhotoViewController: UIViewController, MFMailComposeViewControllerDele
     
     @IBAction func btnExport(sender: AnyObject) {
         println("Export");
-
+        
+        
+        /*
         if(MFMailComposeViewController.canSendMail()){
             println("Can send email");
             myMail = MFMailComposeViewController()
@@ -67,7 +81,7 @@ class ViewPhotoViewController: UIViewController, MFMailComposeViewControllerDele
             self.presentViewController(alert, animated: true, completion: nil)
             
         }
-    
+        */
     }
     
     @IBAction func btnTrash(sender: AnyObject) {
@@ -89,12 +103,15 @@ class ViewPhotoViewController: UIViewController, MFMailComposeViewControllerDele
                         //no photos left
                         self.imgView.image = nil
                         println("No images left!")
-                        //pop rootviewcontroller
+                        self.navigationController?.popToRootViewControllerAnimated(true)  
+                    }else{
+                        self.displayPhoto()
                     }
+                        
                     if self.index >= self.photosAsset.count{
                         self.index = self.photosAsset.count - 1
                     }
-                    self.displayPhoto()
+                    
             })
         }))
         alert.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: {(alertAction)in
@@ -123,9 +140,6 @@ class ViewPhotoViewController: UIViewController, MFMailComposeViewControllerDele
         var ID = imageManager.requestImageForAsset(self.photosAsset[self.index] as PHAsset, targetSize: PHImageManagerMaximumSize, contentMode: .AspectFit, options: nil, resultHandler: {(result, info) in
                 self.imgView.image = result
             })
-        var img = self.photosAsset[self.index] as PHAsset
-        println(img.description)
-        //println(img.location)
     }
 
     override func didReceiveMemoryWarning() {
@@ -148,4 +162,8 @@ class ViewPhotoViewController: UIViewController, MFMailComposeViewControllerDele
             self.dismissViewControllerAnimated(true, completion: nil)
     }
 
+//HHTP Request
+    func httpRequest(){
+        
+    }
 }

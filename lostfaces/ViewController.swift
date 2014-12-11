@@ -58,11 +58,12 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        //check if the folder exists, if doesn't - create it
-        let fetchOption = PHFetchOptions()
-        fetchOption.predicate = NSPredicate(format: "title = %@", albumName)
-        let collection = PHAssetCollection.fetchAssetCollectionsWithType(.Album, subtype: .Any, options: fetchOption)
-        if collection.firstObject != nil{
+        //Check if the folder exists, if not, create it
+        let fetchOptions = PHFetchOptions()
+        fetchOptions.predicate = NSPredicate(format: "title = %@", albumName)
+        let collection:PHFetchResult = PHAssetCollection.fetchAssetCollectionsWithType(.Album, subtype: .Any, options: fetchOptions)
+        
+        if let first_Obj:AnyObject = collection.firstObject{
             //found the album
             self.albumFound = true
             self.assetCollection = collection.firstObject as PHAssetCollection
@@ -83,8 +84,7 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
                         self.assetCollection = collection?.firstObject as PHAssetCollection
                     }
             })
-        }
-    }
+        }    }
     
     override func viewWillAppear(animated: Bool) {
         //fetch the photos from collection

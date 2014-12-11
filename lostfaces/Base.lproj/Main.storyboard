@@ -113,6 +113,11 @@
                                 <action selector="btnCancel:" destination="7oV-zI-49L" id="6nX-gw-Niu"/>
                             </connections>
                         </barButtonItem>
+                        <barButtonItem key="rightBarButtonItem" style="plain" systemItem="bookmarks" id="tgt-K8-sKT">
+                            <connections>
+                                <action selector="btnMetadata:" destination="7oV-zI-49L" id="kh2-Sc-xce"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
                     <connections>
                         <outlet property="imgView" destination="P7a-Ui-3yy" id="Rls-MM-Mi4"/>
