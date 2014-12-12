@@ -18,6 +18,9 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
     var albumFound: Bool = false
     var assetCollection: PHAssetCollection!
     var photosAsset: PHFetchResult!
+    var assetThumbnailSize:CGSize!
+    let editMode = false
+    let fetchOptions = PHFetchOptions()
     
 //Actions and Outlets
 
@@ -28,7 +31,7 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
             var picker: UIImagePickerController = UIImagePickerController()
             picker.sourceType = UIImagePickerControllerSourceType.Camera
             picker.delegate = self
-            picker.allowsEditing = true
+            picker.allowsEditing = editMode
             self.presentViewController(picker, animated: true, completion: nil)
             
         }else{
@@ -47,7 +50,7 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         var picker: UIImagePickerController = UIImagePickerController()
         picker.sourceType = UIImagePickerControllerSourceType.PhotoLibrary
         picker.delegate = self
-        picker.allowsEditing = true
+        picker.allowsEditing = editMode
         self.presentViewController(picker, animated: true, completion: nil)
     }
     
@@ -66,7 +69,7 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         if let first_Obj:AnyObject = collection.firstObject{
             //found the album
             self.albumFound = true
-            self.assetCollection = collection.firstObject as PHAssetCollection
+            self.assetCollection = first_Obj as PHAssetCollection
         }else{
             //Album placeholder for the asset collection, used to reference collection in completion handler
             var albumPlaceholder:PHObjectPlaceholder!
@@ -84,15 +87,22 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
                         self.assetCollection = collection?.firstObject as PHAssetCollection
                     }
             })
-        }    }
+        }
+    }
     
     override func viewWillAppear(animated: Bool) {
-        //fetch the photos from collection
-        self.navigationController?.hidesBarsOnTap = false
-        self.photosAsset = PHAsset.fetchAssetsInAssetCollection(self.assetCollection, options: nil)
+        println("ViewWillAppear")
         
-        //Handle no photos in the assetCollection
-        //..have a label that says no photos
+        // Get size of the collectionView cell for thumbnail image
+        let scale:CGFloat = UIScreen.mainScreen().scale
+        let cellSize = (self.collectionView.collectionViewLayout as UICollectionViewFlowLayout).itemSize
+        self.assetThumbnailSize = CGSizeMake(cellSize.width, cellSize.height)
+        
+        //fetch the photos from collection
+        self.navigationController?.hidesBarsOnTap = false   //!! Use optional chaining
+        self.photosAsset = PHAsset.fetchAssetsInAssetCollection(self.assetCollection, options: fetchOptions)
+        
+        //TODO: Insert a label that says 'No Photos' when empty
         
         self.collectionView.reloadData()
     }
@@ -137,7 +147,7 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
     
 //UICollectionViewDelegateFlowLayout methods
     func collectionView(collectionView: UICollectionView!, layout collectionViewLayout: UICollectionViewLayout!, minimumLineSpacingForSectionAtIndex section: Int) -> CGFloat{
-        return 4
+        return 1
     }
     func collectionView(collectionView: UICollectionView!, layout collectionViewLayout: UICollectionViewLayout!, minimumInteritemSpacingForSectionAtIndex section: Int) -> CGFloat{
         return 1
@@ -146,6 +156,8 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
 //UIImagePickerControllerDelegate Methods
     func imagePickerController(picker: UIImagePickerController!, didFinishPickingMediaWithInfo info: NSDictionary!){
         let image = info.objectForKey("UIImagePickerControllerOriginalImage") as UIImage
+        
+        println(image.description)       
         
         //Implement if allowing user to edit the selected image
         //let editedImage = info.objectForKey("UIImagePickerControllerEditedImage") as UIImage

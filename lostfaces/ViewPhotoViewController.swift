@@ -21,7 +21,21 @@ class ViewPhotoViewController: UIViewController, MFMailComposeViewControllerDele
         println("Cancel");
         var img = self.photosAsset[self.index] as PHAsset
         //println(img.description)
-        //println(img.location)
+        //println(img.)
+        
+        img.requestContentEditingInputWithOptions(nil) { (contentEditingInput: PHContentEditingInput!, _) -> Void in
+            //Get full image
+            let url = contentEditingInput.fullSizeImageURL
+            let orientation = contentEditingInput.fullSizeImageOrientation
+            var inputImage = CIImage(contentsOfURL: url)
+            inputImage = inputImage.imageByApplyingOrientation(orientation)
+            
+            for (key, value) in inputImage.properties() {
+                println("key: \(key)")
+                println("value: \(value)")
+            }
+        }
+        
         let alert = UIAlertController(title: "Metadata", message:
             img.description, preferredStyle: UIAlertControllerStyle.Alert)
         alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default,handler: nil))
@@ -38,7 +52,7 @@ class ViewPhotoViewController: UIViewController, MFMailComposeViewControllerDele
         println("Export");
         
         
-        /*
+        
         if(MFMailComposeViewController.canSendMail()){
             println("Can send email");
             myMail = MFMailComposeViewController()
@@ -81,43 +95,47 @@ class ViewPhotoViewController: UIViewController, MFMailComposeViewControllerDele
             self.presentViewController(alert, animated: true, completion: nil)
             
         }
-        */
+        
     }
     
     @IBAction func btnTrash(sender: AnyObject) {
         println("Trash");
-        let alert = UIAlertController(title: "Delete Image", message: "Are you sure you want to delete this photo?", preferredStyle: .Alert)
-        alert.addAction(UIAlertAction(title: "Yes", style: .Default, handler: {(alertAction) in
-            //delete photos
-            PHPhotoLibrary.sharedPhotoLibrary().performChanges({
-                let request = PHAssetCollectionChangeRequest(forAssetCollection: self.assetCollection)
-                request.removeAssets([self.photosAsset[self.index]])
-                },
-                completionHandler: {(success, error) in
-                    NSLog("\nDeleted Image -> %@", (success ? "Success" : "Error"))
-                    alert.dismissViewControllerAnimated(true, completion: nil)
-                    
-                    //show next image
-                    self.photosAsset = PHAsset.fetchAssetsInAssetCollection(self.assetCollection, options: nil)
-                    if self.photosAsset.count == 0{
-                        //no photos left
-                        self.imgView.image = nil
-                        println("No images left!")
-                        self.navigationController?.popToRootViewControllerAnimated(true)  
-                    }else{
-                        self.displayPhoto()
-                    }
-                        
-                    if self.index >= self.photosAsset.count{
-                        self.index = self.photosAsset.count - 1
-                    }
-                    
-            })
+        let alert = UIAlertController(title: "Delete Image", message: "Are you sure you want to delete this image?", preferredStyle: .Alert)
+        alert.addAction(UIAlertAction(title: "Yes", style: .Default,
+            handler: {(alertAction)in
+                PHPhotoLibrary.sharedPhotoLibrary().performChanges({
+                    //Delete Photo
+                    let request = PHAssetCollectionChangeRequest(forAssetCollection: self.assetCollection)
+                    request.removeAssets([self.photosAsset[self.index]])
+                    },
+                    completionHandler: {(success, error)in
+                        NSLog("\nDeleted Image -> %@", (success ? "Success":"Error!"))
+                        alert.dismissViewControllerAnimated(true, completion: nil)
+                        if(success){
+                            // Move to the main thread to execute
+                            dispatch_async(dispatch_get_main_queue(), {
+                                self.photosAsset = PHAsset.fetchAssetsInAssetCollection(self.assetCollection, options: nil)
+                                if(self.photosAsset.count == 0){
+                                    println("No Images Left!!")
+                                    self.navigationController?.popToRootViewControllerAnimated(true)
+                                }else{
+                                    if(self.index >= self.photosAsset.count){
+                                        self.index = self.photosAsset.count - 1
+                                    }
+                                    self.displayPhoto()
+                                }
+                            })
+                        }else{
+                            println("Error: \(error)")
+                        }
+                })
         }))
-        alert.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: {(alertAction)in
-            //do not delete
+        
+        alert.addAction(UIAlertAction(title: "No", style: .Cancel, handler: {(alertAction)in
+            //Do not delete photo
             alert.dismissViewControllerAnimated(true, completion: nil)
         }))
+        
         self.presentViewController(alert, animated: true, completion: nil)
     }
     
@@ -126,8 +144,6 @@ class ViewPhotoViewController: UIViewController, MFMailComposeViewControllerDele
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -136,10 +152,15 @@ class ViewPhotoViewController: UIViewController, MFMailComposeViewControllerDele
     }
     
     func displayPhoto(){
+        // Set targetSize of image to iPhone screen size
+        let screenSize: CGSize = UIScreen.mainScreen().bounds.size
+        let targetSize = CGSizeMake(screenSize.width, screenSize.height)
+        
         let imageManager = PHImageManager.defaultManager()
-        var ID = imageManager.requestImageForAsset(self.photosAsset[self.index] as PHAsset, targetSize: PHImageManagerMaximumSize, contentMode: .AspectFit, options: nil, resultHandler: {(result, info) in
-                self.imgView.image = result
-            })
+        var ID = imageManager.requestImageForAsset(self.photosAsset[self.index] as PHAsset, targetSize: targetSize, contentMode: .AspectFit, options: nil, resultHandler: {
+            (result, info)->Void in
+            self.imgView.image = result
+        })
     }
 
     override func didReceiveMemoryWarning() {
