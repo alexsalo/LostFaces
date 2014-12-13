@@ -157,7 +157,7 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
     func imagePickerController(picker: UIImagePickerController!, didFinishPickingMediaWithInfo info: NSDictionary!){
         let image = info.objectForKey("UIImagePickerControllerOriginalImage") as UIImage
         
-        println(image.description)       
+        println(image.description)
         
         //Implement if allowing user to edit the selected image
         //let editedImage = info.objectForKey("UIImagePickerControllerEditedImage") as UIImage

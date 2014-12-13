@@ -88,8 +88,14 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="P7a-Ui-3yy">
+                            <imageView multipleTouchEnabled="YES" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="P7a-Ui-3yy">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                                <gestureRecognizers/>
+                                <connections>
+                                    <outletCollection property="gestureRecognizers" destination="OMR-hh-OEb" appends="YES" id="7HE-ZN-uDt"/>
+                                    <outletCollection property="gestureRecognizers" destination="tvg-Ub-f6t" appends="YES" id="TNX-Ov-fyn"/>
+                                    <outletCollection property="gestureRecognizers" destination="StR-gi-Nxn" appends="YES" id="vRA-mq-GVa"/>
+                                </connections>
                             </imageView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -124,6 +130,21 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Q4S-3z-dVK" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <swipeGestureRecognizer direction="right" id="OMR-hh-OEb">
+                    <connections>
+                        <action selector="swipeImg:" destination="7oV-zI-49L" id="yAI-hg-4b2"/>
+                    </connections>
+                </swipeGestureRecognizer>
+                <swipeGestureRecognizer direction="left" id="tvg-Ub-f6t">
+                    <connections>
+                        <action selector="swipeImg:" destination="7oV-zI-49L" id="yot-Rq-sHK"/>
+                    </connections>
+                </swipeGestureRecognizer>
+                <swipeGestureRecognizer direction="up" id="StR-gi-Nxn">
+                    <connections>
+                        <action selector="swipeImg:" destination="7oV-zI-49L" id="Gzz-1C-YY5"/>
+                    </connections>
+                </swipeGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="1074" y="135"/>
         </scene>

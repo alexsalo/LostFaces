@@ -16,6 +16,32 @@ class ViewPhotoViewController: UIViewController, MFMailComposeViewControllerDele
     var photosAsset: PHFetchResult!
     var index: Int = 0
     var myMail: MFMailComposeViewController!
+    
+    @IBAction func swipeImg(sender: UIGestureRecognizer) {
+        if let swipeGesture = sender as? UISwipeGestureRecognizer {
+            
+            switch swipeGesture.direction {
+            case UISwipeGestureRecognizerDirection.Right:
+                println("Swiped right")
+                if index > 0{
+                    index--
+                    displayPhoto()
+                }
+            case UISwipeGestureRecognizerDirection.Left:
+                println("Swiped left")
+                if index < self.photosAsset.count - 1{
+                    index++
+                    displayPhoto()
+                }
+            case UISwipeGestureRecognizerDirection.Up:
+                println("Swiped Up")
+                composeEmail()
+            default:
+                break
+            }
+        }
+    }
+    
 
     @IBAction func btnMetadata(sender: AnyObject) {
         println("Cancel");
@@ -50,52 +76,7 @@ class ViewPhotoViewController: UIViewController, MFMailComposeViewControllerDele
     
     @IBAction func btnExport(sender: AnyObject) {
         println("Export");
-        
-        
-        
-        if(MFMailComposeViewController.canSendMail()){
-            println("Can send email");
-            myMail = MFMailComposeViewController()
-            myMail.mailComposeDelegate = self
-            
-            //myMail.mailComposeDelegate
-            
-            // set the subject
-            myMail.setSubject("My report")
-            
-            //To recipients
-            var toRecipients = ["alexsalovrn@gmail.com"]
-            myMail.setToRecipients(toRecipients)
-            
-            //CC recipients
-            //var ccRecipients = ["tzhang85@gatech.edu"]
-            //myMail.setCcRecipients(ccRecipients)
-            
-            //BCC recipients
-            //var bccRecipients = ["tzhang85@gatech.edu"]
-            //myMail.setBccRecipients(ccRecipients)
-            
-            //Add some text to the message body
-            var sentfrom = "Email sent from lostfaces app"
-            myMail.setMessageBody(sentfrom, isHTML: true)
-            
-            //Include an attachment
-            var image = imgView.image
-            var imageData = UIImageJPEGRepresentation(image, 1.0)
-            
-            myMail.addAttachmentData(imageData, mimeType: "image/jped", fileName: "lostface_image")
-            
-            //Display the view controller
-            self.presentViewController(myMail, animated: true, completion: nil)
-        }
-        else{
-            println("Email is unavailable");
-            var alert = UIAlertController(title: "Alert", message: "Your device cannot send emails", preferredStyle: UIAlertControllerStyle.Alert)
-            alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
-            self.presentViewController(alert, animated: true, completion: nil)
-            
-        }
-        
+        composeEmail()
     }
     
     @IBAction func btnTrash(sender: AnyObject) {
@@ -166,6 +147,52 @@ class ViewPhotoViewController: UIViewController, MFMailComposeViewControllerDele
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+//EMAILING
+    
+    func composeEmail(){
+        if(MFMailComposeViewController.canSendMail()){
+            println("Can send email");
+            myMail = MFMailComposeViewController()
+            myMail.mailComposeDelegate = self
+            
+            //myMail.mailComposeDelegate
+            
+            // set the subject
+            myMail.setSubject("My report")
+            
+            //To recipients
+            var toRecipients = ["alexsalovrn@gmail.com"]
+            myMail.setToRecipients(toRecipients)
+            
+            //CC recipients
+            //var ccRecipients = ["tzhang85@gatech.edu"]
+            //myMail.setCcRecipients(ccRecipients)
+            
+            //BCC recipients
+            //var bccRecipients = ["tzhang85@gatech.edu"]
+            //myMail.setBccRecipients(ccRecipients)
+            
+            //Add some text to the message body
+            var sentfrom = "Email sent from lostfaces app"
+            myMail.setMessageBody(sentfrom, isHTML: true)
+            
+            //Include an attachment
+            var image = imgView.image
+            var imageData = UIImageJPEGRepresentation(image, 1.0)
+            
+            myMail.addAttachmentData(imageData, mimeType: "image/jped", fileName: "lostface_image")
+            
+            //Display the view controller
+            self.presentViewController(myMail, animated: true, completion: nil)
+        }
+        else{
+            println("Email is unavailable");
+            var alert = UIAlertController(title: "Alert", message: "Your device cannot send emails", preferredStyle: UIAlertControllerStyle.Alert)
+            alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+            self.presentViewController(alert, animated: true, completion: nil)
+        }
     }
     
     func mailComposeController(controller: MFMailComposeViewController!,
