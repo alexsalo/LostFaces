@@ -8,6 +8,7 @@
 
 import UIKit
 import Photos
+import AVFoundation
 
 let reuseIdentifier = "PhotoCell"
 let albumName = "lostFaces"
@@ -22,10 +23,31 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
     let editMode = false
     let fetchOptions = PHFetchOptions()
     
+    //camera
+    let captureSesion = AVCaptureSession()
+    var captureDevice : AVCaptureDevice?
+    let stillImageOutput = AVCaptureStillImageOutput()
+    
 //Actions and Outlets
 
     @IBAction func btnCamera(sender: AnyObject) {
         println("Camera")
+        
+        captureSesion.sessionPreset = AVCaptureSessionPresetPhoto
+        let devices = AVCaptureDevice.devices()
+        println(devices)
+        for device in devices{
+            if device.hasMediaType(AVMediaTypeVideo){
+                if device.position == AVCaptureDevicePosition.Back{
+                    captureDevice = device as? AVCaptureDevice
+                }
+            }
+        }
+        if captureDevice != nil{
+            beginSession()
+        }
+        
+        /*
         if UIImagePickerController.isSourceTypeAvailable(.Camera){
             //load camera interface
             var picker: UIImagePickerController = UIImagePickerController()
@@ -43,7 +65,13 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
                 }))
             self.presentViewController(alert, animated: true, completion: nil)
         }
+        */
     }
+    
+    @IBAction func btnTakePhoto(sender: AnyObject) {
+        takePhoto()
+    }
+    
     
     @IBAction func btnPhotoAlbum(sender: AnyObject) {
         println("Album")
@@ -67,7 +95,7 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         let collection:PHFetchResult = PHAssetCollection.fetchAssetCollectionsWithType(.Album, subtype: .Any, options: fetchOptions)
         
         if let first_Obj:AnyObject = collection.firstObject{
-            //found the album
+            //found the album/Users/salo/Documents/ExampleappusingPhotosframework/README.md
             self.albumFound = true
             self.assetCollection = first_Obj as PHAssetCollection
         }else{
@@ -180,6 +208,75 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
     }
     func imagePickerControllerDidCancel(picker: UIImagePickerController){
         picker.dismissViewControllerAnimated(true, completion: nil)
+    }
+    
+//camera funcs
+    func beginSession(){
+        configureDevice()
+        var err : NSError? = nil
+        captureSesion.addInput(AVCaptureDeviceInput(device: captureDevice, error: &err))
+        if err != nil{
+            println("eroor: \(err?.localizedDescription)")
+        }
+        
+        //preview on the screen what camera sees: make FACES FINDS here!
+        var previewLayer = AVCaptureVideoPreviewLayer(session: captureSesion)
+        self.view.layer.addSublayer(previewLayer)
+        previewLayer?.frame = self.view.layer.frame
+        
+        var outputSettings = [AVVideoCodecKey: AVVideoCodecJPEG]
+        stillImageOutput.outputSettings = outputSettings
+        if captureSesion.canAddOutput(stillImageOutput){
+            println("stilImageOutput Added")
+            captureSesion.addOutput(stillImageOutput)
+        }
+        else{
+            println("Faild to add stilImageOutput")
+        }
+        
+        
+        captureSesion.startRunning()
+        self.navigationController?.hidesBarsOnTap
+        //takePhoto()
+        
+        
+    }
+    
+    func configureDevice(){
+        if let device = captureDevice{
+            device.lockForConfiguration(nil)
+            device.focusMode = .AutoFocus
+            device.unlockForConfiguration()
+        }
+    }
+    
+    func takePhoto(){
+        if let videoConnection = stillImageOutput.connectionWithMediaType(AVMediaTypeVideo){
+            stillImageOutput.captureStillImageAsynchronouslyFromConnection(videoConnection){
+                (imageSampleBuffer : CMSampleBuffer!, _) in
+                
+                let imageDataJpeg = AVCaptureStillImageOutput.jpegStillImageNSDataRepresentation(imageSampleBuffer)
+                var pickedImage: UIImage? = UIImage(data: imageDataJpeg)
+                //self.imgViewPhoto.image = pickedImage
+                let priority = DISPATCH_QUEUE_PRIORITY_DEFAULT
+                dispatch_async(dispatch_get_global_queue(priority, 0), {
+                    PHPhotoLibrary.sharedPhotoLibrary().performChanges({
+                        let createAssetRequest = PHAssetChangeRequest.creationRequestForAssetFromImage(pickedImage)
+                        let assetPlaceholder = createAssetRequest.placeholderForCreatedAsset
+                        let albumChangeRequest = PHAssetCollectionChangeRequest(forAssetCollection: self.assetCollection, assets: self.photosAsset)
+                        albumChangeRequest.addAssets([assetPlaceholder])
+                        }, completionHandler: {(success, error)in
+                            dispatch_async(dispatch_get_main_queue(), {
+                                NSLog("Adding Image to Library -> %@", (success ? "Sucess":"Error!"))
+                            })
+                    })
+                })
+                println("Captured image has been put to app's album")
+        
+            }
+        }else{
+            println("No video media type connection available")
+        }
     }
 
 }
