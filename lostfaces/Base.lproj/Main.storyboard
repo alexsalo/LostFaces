@@ -51,15 +51,6 @@
                                     <outlet property="delegate" destination="BYZ-38-t0r" id="C7a-QL-41u"/>
                                 </connections>
                             </collectionView>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sGy-qu-K3w">
-                                <rect key="frame" x="137" y="501" width="46" height="30"/>
-                                <state key="normal" title="Button">
-                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                </state>
-                                <connections>
-                                    <action selector="btnTakePhoto:" destination="BYZ-38-t0r" eventType="touchUpInside" id="i1d-W8-3fq"/>
-                                </connections>
-                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
@@ -104,6 +95,7 @@
                                     <outletCollection property="gestureRecognizers" destination="OMR-hh-OEb" appends="YES" id="7HE-ZN-uDt"/>
                                     <outletCollection property="gestureRecognizers" destination="tvg-Ub-f6t" appends="YES" id="TNX-Ov-fyn"/>
                                     <outletCollection property="gestureRecognizers" destination="StR-gi-Nxn" appends="YES" id="vRA-mq-GVa"/>
+                                    <outletCollection property="gestureRecognizers" destination="HJV-7J-3S3" appends="YES" id="aZt-Go-8Wa"/>
                                 </connections>
                             </imageView>
                         </subviews>
@@ -152,6 +144,11 @@
                 <swipeGestureRecognizer direction="up" id="StR-gi-Nxn">
                     <connections>
                         <action selector="swipeImg:" destination="7oV-zI-49L" id="Gzz-1C-YY5"/>
+                    </connections>
+                </swipeGestureRecognizer>
+                <swipeGestureRecognizer direction="down" id="HJV-7J-3S3">
+                    <connections>
+                        <action selector="swipeImg:" destination="7oV-zI-49L" id="VsL-Ms-uNX"/>
                     </connections>
                 </swipeGestureRecognizer>
             </objects>

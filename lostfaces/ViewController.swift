@@ -33,6 +33,7 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
     @IBAction func btnCamera(sender: AnyObject) {
         println("Camera")
         
+        /*
         captureSesion.sessionPreset = AVCaptureSessionPresetPhoto
         let devices = AVCaptureDevice.devices()
         println(devices)
@@ -45,9 +46,9 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         }
         if captureDevice != nil{
             beginSession()
-        }
+        }*/
         
-        /*
+        
         if UIImagePickerController.isSourceTypeAvailable(.Camera){
             //load camera interface
             var picker: UIImagePickerController = UIImagePickerController()
@@ -65,7 +66,7 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
                 }))
             self.presentViewController(alert, animated: true, completion: nil)
         }
-        */
+        
     }
     
     @IBAction func btnTakePhoto(sender: AnyObject) {

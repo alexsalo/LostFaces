@@ -9,6 +9,9 @@
 import UIKit
 import Photos
 import MessageUI
+import Foundation
+
+let uploadURL = "http://requestb.in/1gywwg51"
 
 class ViewPhotoViewController: UIViewController, MFMailComposeViewControllerDelegate {
     
@@ -36,6 +39,9 @@ class ViewPhotoViewController: UIViewController, MFMailComposeViewControllerDele
             case UISwipeGestureRecognizerDirection.Up:
                 println("Swiped Up")
                 composeEmail()
+            case UISwipeGestureRecognizerDirection.Down:
+                println("Swiped Down")
+                self.sendPhotoToApi()
             default:
                 break
             }
@@ -211,7 +217,55 @@ class ViewPhotoViewController: UIViewController, MFMailComposeViewControllerDele
     }
 
 //HHTP Request
-    func httpRequest(){
-        
+    func sendPhotoToApi(){
+        let configName = "edu.baylor.ecs"
+        let sessionConfig = NSURLSessionConfiguration.backgroundSessionConfigurationWithIdentifier(configName)
+        let session = NSURLSession(configuration: sessionConfig)
+        // Prepare the URL Request
+        let request = urlRequestWithImage(imgView.image, text: "test")
+        let task = session.dataTaskWithRequest(request!)
+        task.resume()
+        println("Sending photo to API")
     }
+    
+    func urlRequestWithImage(image: UIImage?, text: String) -> NSURLRequest? {
+        
+        let url = NSURL(string: uploadURL)
+        let request = NSMutableURLRequest(URL: url!)
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.addValue("application/json", forHTTPHeaderField: "Accept")
+        request.HTTPMethod = "POST"
+        
+        var jsonObject = NSMutableDictionary()
+        jsonObject["text"] = text
+        if let image = image {
+            jsonObject["image_details"] = extractDetailsFromImage(image)
+        }
+        
+        // Create the JSON payload
+        var jsonError: NSError?
+        let jsonData = NSJSONSerialization.dataWithJSONObject(jsonObject, options: nil, error: &jsonError)
+        if (jsonData != nil) {
+            request.HTTPBody = jsonData
+        } else {
+            if let error = jsonError {
+                println("JSON Error: \(error.localizedDescription)")
+            }
+        }
+        
+        return request
+    }
+    
+    func extractDetailsFromImage(image: UIImage) -> NSDictionary {
+        var resultDict = NSMutableDictionary()
+        resultDict["height"] = image.size.height
+        resultDict["width"] = image.size.width
+        resultDict["orientation"] = image.imageOrientation.rawValue
+        resultDict["scale"] = image.scale
+        resultDict["description"] = image.description
+        return resultDict.copy() as NSDictionary
+    }
+    
+//Upload to FTP
+    
 }
