@@ -240,6 +240,8 @@ class ViewPhotoViewController: UIViewController, MFMailComposeViewControllerDele
         jsonObject["text"] = text
         if let image = image {
             jsonObject["image_details"] = extractDetailsFromImage(image)
+            //var imageData = UIImageJPEGRepresentation(image, 1.0)
+            //jsonObject["imageData"] = imageData
         }
         
         // Create the JSON payload

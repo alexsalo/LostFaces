@@ -9,6 +9,10 @@
 import UIKit
 import Photos
 import AVFoundation
+import CoreMedia
+import AssetsLibrary
+import CoreLocation
+import AddressBook
 
 let reuseIdentifier = "PhotoCell"
 let albumName = "lostFaces"
@@ -187,6 +191,36 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         let image = info.objectForKey("UIImagePickerControllerOriginalImage") as UIImage
         
         println(image.description)
+        
+        let library = ALAssetsLibrary()
+        let URL: AnyObject? = info["UIImagePickerControllerReferenceURL"]
+        var error: NSError?
+        library.assetForURL(URL as NSURL, resultBlock: { (asset) -> Void in
+            //for data in asset.defaultRepresentation().metadata(){println(data) }
+            let location = asset.valueForProperty(ALAssetPropertyLocation) as? CLLocation
+            let geocoder = CLGeocoder()
+            //let location = CLLocation(latitude: CLLocationDegrees(31.55), longitude: CLLocationDegrees(-97.11))
+            geocoder.reverseGeocodeLocation(location!) { (data, error) -> Void in
+                for d in data{
+                    println(d)
+                }
+                println(data[0].addressDictionary)
+                println()
+                let address = data[0].addressDictionary!
+                let city = address[kABPersonAddressCityKey] as  NSString!
+                let state = address[kABPersonAddressStateKey] as  NSString!
+                println(city, state)
+            }
+        }) { (error) -> Void in
+            println(error)
+        }
+        
+        
+        
+        
+        
+        
+        
         
         //Implement if allowing user to edit the selected image
         //let editedImage = info.objectForKey("UIImagePickerControllerEditedImage") as UIImage
